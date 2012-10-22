@@ -1,3 +1,5 @@
+require 'gzip'
+
 module AssetSync
   class Storage
 
@@ -116,7 +118,11 @@ module AssetSync
       gzipped = "#{path}/#{f}.gz"
       ignore = false
 
-      if config.gzip? && File.extname(f) == ".gz"
+      if config.gzip? && is_already_gzipped?("#{path}/#{f}")
+          file.merge!({
+            :content_encoding => 'gzip'
+          })
+      elsif config.gzip? && File.extname(f) == ".gz"
         # Don't bother uploading gzipped assets if we are in gzip_compression mode
         # as we will overwrite file.css with file.css.gz if it exists.
         log "Ignoring: #{f}"
@@ -152,6 +158,16 @@ module AssetSync
       end
 
       file = bucket.files.create( file ) unless ignore
+    end
+
+    def is_already_gzipped?(file_path)
+      begin 
+        if Zlib::Inflate.inflate(File.open(file_path))
+          return true
+        end
+      rescue Zlib::DataError
+        return false
+      end
     end
 
     def upload_files
