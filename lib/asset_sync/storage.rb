@@ -116,7 +116,7 @@ module AssetSync
       gzipped = "#{path}/#{f}.gz"
       ignore = false
 
-      if config.gzip? && is_already_gzipped?(f)
+      if config.gzip? && is_already_gzipped?(File.open("#{path}/#{f}"))
         file.merge!({
           :content_encoding => 'gzip'
         })
@@ -164,9 +164,12 @@ module AssetSync
       begin 
         asset = Zlib::GzipReader.new(file)
         asset.rewind
+        asset.close
+        file.rewind
         return true
       rescue
         file.rewind
+        file.close
         return false
       end
     end
