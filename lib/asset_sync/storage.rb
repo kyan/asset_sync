@@ -116,7 +116,7 @@ module AssetSync
       gzipped = "#{path}/#{f}.gz"
       ignore = false
 
-      if config.gzip? && is_already_gzipped?(File.open("#{path}/#{f}"))
+      if config.gzip? && File.extname(f) != ".gz" && is_already_gzipped?(File.open("#{path}/#{f}"))
         file.merge!({
           :content_encoding => 'gzip'
         })
