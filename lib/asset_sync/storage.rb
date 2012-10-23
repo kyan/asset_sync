@@ -165,7 +165,6 @@ module AssetSync
         asset = Zlib::GzipReader.new(file)
         asset.rewind
         asset.close
-        file.rewind
         return true
       rescue
         file.rewind
